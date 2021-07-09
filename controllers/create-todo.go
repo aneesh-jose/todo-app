@@ -3,12 +3,22 @@ package controllers
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
 
 	"github.com/gofiber/fiber"
 	_ "github.com/lib/pq"
+	"github.com/spf13/viper"
 )
 
 func CreateTodo(ctx *fiber.Ctx) {
+	viper.SetConfigFile(".env")
+	viper.ReadInConfig()
+	host := viper.Get("HOST")
+	user := viper.Get("USER")
+	password := viper.Get("PASSWORD")
+	dbname := viper.Get("DBNAME")
+	portStr, _ := viper.Get("PORT").(string)
+	port, _ := strconv.Atoi(portStr)
 
 	type Todo struct {
 		Name        string `json:"name"`
@@ -24,11 +34,6 @@ func CreateTodo(ctx *fiber.Ctx) {
 		})
 		return
 	}
-	user := "postgres"
-	password := "root"
-	dbname := "postgres"
-	port := 5432
-	host := "localhost"
 
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 
