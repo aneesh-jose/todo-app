@@ -16,6 +16,7 @@ func main() {
 
 	// user creation
 	app.Post("/signup", controllers.CreateUser)
+	app.Post("/login", controllers.Login)
 
 	app.Listen(8090)
 }

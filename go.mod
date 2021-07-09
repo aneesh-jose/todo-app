@@ -7,6 +7,7 @@ require (
 	github.com/armon/consul-api v0.0.0-20180202201655-eb2c6b5be1b6 // indirect
 	github.com/coreos/etcd v3.3.10+incompatible // indirect
 	github.com/coreos/go-etcd v2.0.0+incompatible // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/gofiber/fiber v1.14.6 // direct
 	github.com/klauspost/compress v1.13.1 // indirect
 	github.com/lib/pq v1.10.2 // direct
