@@ -12,6 +12,12 @@ import (
 
 func UpdateTodo(ctx *fiber.Ctx) {
 
+	token := ctx.Cookies("token")
+	username, err := JWTAuthenticate(&token)
+	if username == "" || err != nil {
+		ctx.Status(fiber.StatusUnauthorized)
+		return
+	}
 	viper.SetConfigFile(".env")
 	viper.ReadInConfig()
 	host := viper.Get("HOST")
@@ -27,7 +33,7 @@ func UpdateTodo(ctx *fiber.Ctx) {
 	}
 	var body Todo
 
-	err := ctx.BodyParser(&body)
+	err = ctx.BodyParser(&body)
 
 	if err != nil {
 		ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -47,7 +53,7 @@ func UpdateTodo(ctx *fiber.Ctx) {
 		fmt.Println(err.Error())
 		return
 	}
-	result, err := db.Exec("update todos set status=$1 where id=$2", body.Status, body.Id)
+	result, err := db.Exec("update todos set status=$1 where id=$2 and username=$3", body.Status, body.Id, username)
 	if err != nil {
 		ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": "database updation unsuccessful",
