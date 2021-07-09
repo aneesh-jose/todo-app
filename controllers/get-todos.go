@@ -19,7 +19,6 @@ func ReadTodos(ctx *fiber.Ctx) {
 		ctx.Status(fiber.StatusUnauthorized)
 		return
 	}
-	fmt.Println(username)
 	viper.SetConfigFile(".env")
 	viper.ReadInConfig()
 	host := viper.Get("HOST")

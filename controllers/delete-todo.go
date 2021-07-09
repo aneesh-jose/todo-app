@@ -12,6 +12,12 @@ import (
 
 func DeleteTodo(ctx *fiber.Ctx) {
 
+	token := ctx.Cookies("token")
+	username, err := JWTAuthenticate(&token)
+	if username == "" || err != nil {
+		ctx.Status(fiber.StatusUnauthorized)
+		return
+	}
 	viper.SetConfigFile(".env")
 	viper.ReadInConfig()
 	host := viper.Get("HOST")
@@ -26,7 +32,7 @@ func DeleteTodo(ctx *fiber.Ctx) {
 	}
 	var body Todo
 
-	err := ctx.BodyParser(&body)
+	err = ctx.BodyParser(&body)
 
 	if err != nil {
 		ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -46,7 +52,7 @@ func DeleteTodo(ctx *fiber.Ctx) {
 		fmt.Println(err.Error())
 		return
 	}
-	_, err = db.Exec("delete from todos where id=$1", body.Id)
+	_, err = db.Exec("delete from todos where id=$1 and username=$2", body.Id, username)
 	if err != nil {
 		ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": "database deletion unsuccessful",

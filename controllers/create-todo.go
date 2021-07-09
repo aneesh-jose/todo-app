@@ -13,8 +13,8 @@ import (
 func CreateTodo(ctx *fiber.Ctx) {
 
 	token := ctx.Cookies("token")
-	authenticated, err := JWTAuthenticate(&token)
-	if authenticated == "" || err != nil {
+	username, err := JWTAuthenticate(&token)
+	if username == "" || err != nil {
 		ctx.Status(fiber.StatusUnauthorized)
 		return
 	}
@@ -53,7 +53,7 @@ func CreateTodo(ctx *fiber.Ctx) {
 		fmt.Println(err.Error())
 		return
 	}
-	result, err := db.Exec("insert into todos values(nextval('countsequence'),$1,$2,$3)", body.Name, body.Description, false)
+	result, err := db.Exec("insert into todos values(nextval('countsequence'),$1,$2,$3,$4)", body.Name, body.Description, false, username)
 	if err != nil {
 		ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": "database insertion unsuccessful",
