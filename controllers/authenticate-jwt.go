@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func JWTAuthenticate(token *string, username *string) (bool, error) {
+func JWTAuthenticate(token *string) (bool, error) {
 
 	type Claims struct {
 		Username string `json:"username"`
@@ -14,6 +14,9 @@ func JWTAuthenticate(token *string, username *string) (bool, error) {
 	}
 
 	claims := &Claims{}
+
+	viper.SetConfigFile(".env")
+	viper.ReadInConfig()
 
 	jwtKey := viper.Get("JWTKEY").(string)
 	jsonKey := []byte(jwtKey)

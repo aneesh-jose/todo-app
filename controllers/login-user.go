@@ -63,6 +63,9 @@ func Login(ctx *fiber.Ctx) {
 	if Username == "" {
 		ctx.Status(fiber.StatusUnauthorized)
 	}
+
+	defer db.Close()
+
 	tokenString, err := JWTGenerator(body)
 	if err != nil {
 		ctx.Status(fiber.StatusInternalServerError)

@@ -59,6 +59,7 @@ func CreateUser(ctx *fiber.Ctx) {
 		return
 	}
 	id, err := result.LastInsertId()
+	defer db.Close()
 	ctx.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"id": id,
 	})

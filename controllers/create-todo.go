@@ -54,6 +54,9 @@ func CreateTodo(ctx *fiber.Ctx) {
 		return
 	}
 	lastId, _ := result.LastInsertId()
+
+	defer db.Close()
+
 	ctx.Status(fiber.StatusAccepted).JSON(fiber.Map{
 		"accepted": lastId,
 	})

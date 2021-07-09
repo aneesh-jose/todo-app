@@ -12,6 +12,13 @@ import (
 )
 
 func ReadTodos(ctx *fiber.Ctx) {
+
+	token := ctx.Cookies("token")
+	authenticated, err := JWTAuthenticate(&token)
+	if !authenticated || err != nil {
+		ctx.Status(fiber.StatusUnauthorized)
+		return
+	}
 	viper.SetConfigFile(".env")
 	viper.ReadInConfig()
 	host := viper.Get("HOST")

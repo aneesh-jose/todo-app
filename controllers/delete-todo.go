@@ -54,6 +54,7 @@ func DeleteTodo(ctx *fiber.Ctx) {
 		fmt.Println(err)
 		return
 	}
+	defer db.Close()
 
 	ctx.Status(fiber.StatusAccepted)
 }
