@@ -5,4 +5,5 @@ type TodoJson struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Status      bool   `json:"status"`
+	User        string `json:"username"`
 }

@@ -11,6 +11,14 @@ import (
 )
 
 func CreateTodo(ctx *fiber.Ctx) {
+
+	token := ctx.Cookies("token")
+	authenticated, err := JWTAuthenticate(&token)
+	if authenticated == "" || err != nil {
+		ctx.Status(fiber.StatusUnauthorized)
+		return
+	}
+
 	viper.SetConfigFile(".env")
 	viper.ReadInConfig()
 	host := viper.Get("HOST")
@@ -26,7 +34,7 @@ func CreateTodo(ctx *fiber.Ctx) {
 	}
 	var body Todo
 
-	err := ctx.BodyParser(&body)
+	err = ctx.BodyParser(&body)
 
 	if err != nil {
 		ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{

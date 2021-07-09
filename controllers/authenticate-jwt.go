@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func JWTAuthenticate(token *string) (bool, error) {
+func JWTAuthenticate(token *string) (string, error) {
 
 	type Claims struct {
 		Username string `json:"username"`
@@ -25,11 +25,11 @@ func JWTAuthenticate(token *string) (bool, error) {
 		return jsonKey, nil
 	})
 	if err != nil {
-		return false, err
+		return "", err
 	}
 	if !tkn.Valid {
 
-		return false, err
+		return "", err
 	}
-	return true, nil
+	return claims.Username, nil
 }

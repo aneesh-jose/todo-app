@@ -14,11 +14,12 @@ import (
 func ReadTodos(ctx *fiber.Ctx) {
 
 	token := ctx.Cookies("token")
-	authenticated, err := JWTAuthenticate(&token)
-	if !authenticated || err != nil {
+	username, err := JWTAuthenticate(&token)
+	if username == "" || err != nil {
 		ctx.Status(fiber.StatusUnauthorized)
 		return
 	}
+	fmt.Println(username)
 	viper.SetConfigFile(".env")
 	viper.ReadInConfig()
 	host := viper.Get("HOST")
@@ -40,7 +41,7 @@ func ReadTodos(ctx *fiber.Ctx) {
 		fmt.Println(err.Error())
 		return
 	}
-	query, err := db.Query("select * from todos")
+	query, err := db.Query("select * from todos where username=$1", username)
 	if err != nil {
 		ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": "database query unsuccessful",
@@ -50,7 +51,7 @@ func ReadTodos(ctx *fiber.Ctx) {
 
 	for query.Next() {
 		var sample models.TodoJson
-		err = query.Scan(&sample.Id, &sample.Name, &sample.Description, &sample.Status)
+		err = query.Scan(&sample.Id, &sample.Name, &sample.Description, &sample.Status, &sample.User)
 		if err != nil {
 			ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{
 				"error": "parsing unsuccessful",
@@ -68,6 +69,6 @@ func ReadTodos(ctx *fiber.Ctx) {
 			"status":      elem.Status,
 		}
 	}
-	ctx.Status(fiber.StatusForbidden).JSON(todolist)
+	ctx.Status(fiber.StatusFound).JSON(todolist)
 	defer db.Close()
 }
