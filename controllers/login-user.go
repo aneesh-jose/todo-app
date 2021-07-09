@@ -5,18 +5,14 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/aneesh-jose/simple-server/models"
 	"github.com/gofiber/fiber"
 	"github.com/spf13/viper"
 )
 
 func Login(ctx *fiber.Ctx) {
 
-	type User struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
-
-	var body User
+	var body models.User
 	err := ctx.BodyParser(&body)
 	if err != nil {
 
@@ -64,7 +60,16 @@ func Login(ctx *fiber.Ctx) {
 			return
 		}
 	}
+	if Username == "" {
+		ctx.Status(fiber.StatusUnauthorized)
+	}
+	tokenString, err := JWTGenerator(body)
+	if err != nil {
+		ctx.Status(fiber.StatusInternalServerError)
+	}
 	ctx.Status(fiber.StatusAccepted).JSON(fiber.Map{
 		"username": Username,
+		"token":    tokenString,
 	})
+
 }
