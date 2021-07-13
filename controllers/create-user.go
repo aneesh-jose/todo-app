@@ -3,21 +3,15 @@ package controllers
 import (
 	"database/sql"
 	"fmt"
-	"strconv"
 
+	"github.com/aneesh-jose/simple-server/models"
+	"github.com/aneesh-jose/simple-server/packages/dbops"
 	"github.com/gofiber/fiber"
-	"github.com/spf13/viper"
 )
 
 func CreateUser(ctx *fiber.Ctx) {
 
-	type User struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-		Name     string `json:"name"`
-	}
-
-	var body User
+	var body models.UserDetails
 
 	err := ctx.BodyParser(&body)
 	if err != nil {
@@ -28,17 +22,7 @@ func CreateUser(ctx *fiber.Ctx) {
 		return
 	}
 
-	viper.SetConfigFile(".env")
-	viper.ReadInConfig()
-	host := viper.Get("HOST")
-	user := viper.Get("USER")
-	password := viper.Get("PASSWORD")
-	dbname := viper.Get("DBNAME")
-	portStr, _ := viper.Get("PORT").(string)
-	port, _ := strconv.Atoi(portStr)
-
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-
+	psqlInfo := dbops.GetDbCreds()
 	db, err := sql.Open("postgres", psqlInfo)
 
 	if err != nil {

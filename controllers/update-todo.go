@@ -3,11 +3,10 @@ package controllers
 import (
 	"database/sql"
 	"fmt"
-	"strconv"
 
+	"github.com/aneesh-jose/simple-server/packages/dbops"
 	"github.com/gofiber/fiber"
 	_ "github.com/lib/pq"
-	"github.com/spf13/viper"
 )
 
 func UpdateTodo(ctx *fiber.Ctx) {
@@ -18,14 +17,6 @@ func UpdateTodo(ctx *fiber.Ctx) {
 		ctx.Status(fiber.StatusUnauthorized)
 		return
 	}
-	viper.SetConfigFile(".env")
-	viper.ReadInConfig()
-	host := viper.Get("HOST")
-	user := viper.Get("USER")
-	password := viper.Get("PASSWORD")
-	dbname := viper.Get("DBNAME")
-	portStr, _ := viper.Get("PORT").(string)
-	port, _ := strconv.Atoi(portStr)
 
 	type Todo struct {
 		Id     int  `json:"id"`
@@ -43,7 +34,7 @@ func UpdateTodo(ctx *fiber.Ctx) {
 		return
 	}
 
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	psqlInfo := dbops.GetDbCreds()
 
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
