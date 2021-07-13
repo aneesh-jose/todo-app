@@ -10,15 +10,9 @@ import (
 
 func JWTGenerator(body models.User) (string, error) {
 
-	type Claims struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-		jwt.StandardClaims
-	}
-
 	expirationTime := time.Now().Add(30 * 24 * time.Hour)
 
-	claims := &Claims{
+	claims := models.Claims{
 		Username: body.Username,
 		Password: body.Password,
 		StandardClaims: jwt.StandardClaims{
@@ -26,7 +20,7 @@ func JWTGenerator(body models.User) (string, error) {
 			ExpiresAt: expirationTime.Unix(),
 		},
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &claims)
 
 	// Create the JWT string
 	jwtKey := viper.Get("JWTKEY").(string)
