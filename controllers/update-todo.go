@@ -11,9 +11,10 @@ import (
 
 func UpdateTodo(ctx *fiber.Ctx) {
 
-	token := ctx.Cookies("token")
-	username, err := JWTAuthenticate(&token)
+	token := ctx.Cookies("token")            // read token from cookies
+	username, err := JWTAuthenticate(&token) // authenticate the token
 	if username == "" || err != nil {
+		// error while parsing the jwt
 		ctx.Status(fiber.StatusUnauthorized)
 		return
 	}
@@ -24,9 +25,12 @@ func UpdateTodo(ctx *fiber.Ctx) {
 	}
 	var body Todo
 
+	// Parse the input from user.
+	// Its content will be the id of the todo and the status it need to change to(completed or not)
 	err = ctx.BodyParser(&body)
 
 	if err != nil {
+		// Illegal request: the request body cannot be parsed
 		ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "Cannot parse request",
 			"details": err.Error(),
@@ -34,16 +38,19 @@ func UpdateTodo(ctx *fiber.Ctx) {
 		return
 	}
 
-	psqlInfo := dbops.GetDbCreds()
+	psqlInfo := dbops.GetDbCreds() // get the database credentials
 
-	db, err := sql.Open("postgres", psqlInfo)
+	db, err := sql.Open("postgres", psqlInfo) // open a database connection
 	if err != nil {
-		ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+		// the database authentication credentials might have changed
+		// or the database server might be down
+		ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "connection unsuccessful",
 		})
 		fmt.Println(err.Error())
 		return
 	}
+	// update the todo data i.e, the status (completed or not) according to the user input
 	result, err := db.Exec("update todos set status=$1 where id=$2 and username=$3", body.Status, body.Id, username)
 	if err != nil {
 		ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{
@@ -52,6 +59,7 @@ func UpdateTodo(ctx *fiber.Ctx) {
 		fmt.Println(err)
 		return
 	}
+	// successfully updated the database
 	lastId, _ := result.LastInsertId()
 	ctx.Status(fiber.StatusAccepted).JSON(fiber.Map{
 		"accepted": lastId,

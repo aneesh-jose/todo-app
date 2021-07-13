@@ -15,7 +15,9 @@ func JWTAuthenticate(token *string) (string, error) {
 
 	jwtKey := viper.Get("JWTKEY").(string)
 	jsonKey := []byte(jwtKey)
-
+	// java web token parsing and generating username and password
+	// from the given jwt. These two parameters will be assigned to `claims`,
+	// If the parsing is unsuccessful, it will return an error
 	tkn, err := jwt.ParseWithClaims(*token, &claims, func(token *jwt.Token) (interface{}, error) {
 		return jsonKey, nil
 	})
