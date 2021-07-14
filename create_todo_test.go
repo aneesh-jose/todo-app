@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/aneesh-jose/simple-server/controllers"
+	authentication "github.com/aneesh-jose/simple-server/utils/auth"
 	"github.com/gofiber/fiber"
 )
 
@@ -14,7 +14,7 @@ func TestCreateTodo(t *testing.T) {
 	app := fiber.New()
 	app.Post("/", func(ctx *fiber.Ctx) {
 		token := ctx.Cookies("token")
-		username, err := controllers.JWTAuthenticate(&token)
+		username, err := authentication.JWTAuthenticate(&token)
 		if username == "" || err != nil {
 			ctx.Status(fiber.StatusUnauthorized)
 			return
@@ -39,15 +39,17 @@ func TestCreateTodo(t *testing.T) {
 	})
 
 	testBody := []struct {
-		name   string
-		body   map[string]string
-		ctype  string
-		cookie string
-		resp   map[string]int
-		code   int
+		name     string
+		testType string
+		body     map[string]string
+		ctype    string
+		cookie   string
+		resp     map[string]int
+		code     int
 	}{
 		{
-			name: "Accoring to requirements",
+			name:     "Accoring to requirements",
+			testType: "OK",
 			body: map[string]string{"name": "the todo name3",
 				"description": "The TODO description"},
 			ctype:  "application/json",
@@ -58,7 +60,8 @@ func TestCreateTodo(t *testing.T) {
 			code: fiber.StatusAccepted,
 		},
 		{
-			name: "Unauthorized user",
+			name:     "Unauthorized user",
+			testType: "ERROR",
 			body: map[string]string{"name": "the todo name3",
 				"description": "The TODO description"},
 			ctype:  "application/json",
@@ -77,7 +80,9 @@ func TestCreateTodo(t *testing.T) {
 		req, err := http.NewRequest("POST", "http://localhost:8090/", bytes.NewReader(body))
 
 		if err != nil {
-			t.Errorf("Name: %v, Error on request:%v", post.name, err)
+			if post.testType != "ERROR" {
+				t.Errorf("Name: %v, Error on request:%v", post.name, err)
+			}
 		}
 
 		req.AddCookie(&http.Cookie{Name: "token", Value: post.cookie})

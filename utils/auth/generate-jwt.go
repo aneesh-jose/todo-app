@@ -29,9 +29,12 @@ func JWTGenerator(body models.User) (string, error) {
 
 	// the secure private key is obtained from the
 	// .env file using viper and is converted to string
+
+	viper.SetConfigFile(".env")
+	viper.ReadInConfig()
 	jwtKey := viper.Get("JWTKEY").(string)
 	jsonKey := []byte(jwtKey)                       //converting the obtained key to byte format
-	tokenString, err := token.SignedString(jsonKey) //generate token
+	tokenString, err := token.SignedString(jsonKey) //generate signed token
 
 	if err != nil {
 		// If there is an error in creating the JWT return an internal server error
