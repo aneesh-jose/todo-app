@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"database/sql"
-
 	"github.com/aneesh-jose/simple-server/models"
 	authentication "github.com/aneesh-jose/simple-server/utils/auth"
 	"github.com/aneesh-jose/simple-server/utils/dbops"
@@ -22,19 +20,9 @@ func Login(ctx *fiber.Ctx) {
 	}
 
 	var Username string
-	psqlInfo := dbops.GetDbCreds()            //obtain database credentials
-	db, err := sql.Open("postgres", psqlInfo) //connect to database
-	if err != nil {
-		// database connection error
-		// maybe database server is down or the
-		// authentication credentials might have changed
-		ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "connection unsuccessful",
-		})
-		return
-	}
+
 	// query the table 'USERS' on username and password from the user
-	query, err := db.Query("select username from users where username=$1 and password=$2", body.Username, body.Password)
+	query, err := dbops.CheckUserAvailability(body)
 	if err != nil {
 		ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": "database query unsuccessful",
@@ -56,7 +44,6 @@ func Login(ctx *fiber.Ctx) {
 		ctx.Status(fiber.StatusUnauthorized)
 	}
 
-	defer db.Close()
 	// generate token according to the username and password
 	tokenString, err := authentication.JWTGenerator(body)
 	if err != nil {

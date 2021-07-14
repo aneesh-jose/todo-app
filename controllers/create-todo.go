@@ -1,9 +1,6 @@
 package controllers
 
 import (
-	"database/sql"
-	"fmt"
-
 	authentication "github.com/aneesh-jose/simple-server/utils/auth"
 	"github.com/aneesh-jose/simple-server/utils/dbops"
 	"github.com/gofiber/fiber"
@@ -36,31 +33,19 @@ func CreateTodo(ctx *fiber.Ctx) {
 		})
 		return
 	}
-
-	psqlInfo := dbops.GetDbCreds()            // acquire databse authentication credentials
-	db, err := sql.Open("postgres", psqlInfo) //connect to postgresql database
-	if err != nil {
-		ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "connection unsuccessful",
-		})
-		fmt.Println(err.Error())
-		return
-	}
 	// insert the newly obtained todo to the 'TODOS' table
 	// the name and the description of the todo is obtained from user end
 	// the status of completion of the todo is marked as false(not completed) and
 	// username is obtained from the jwt authenticator
-	result, err := db.Exec("insert into todos values(nextval('countsequence'),$1,$2,$3,$4)", body.Name, body.Description, false, username)
+	// result, err := db.Exec("insert into todos values(nextval('countsequence'),$1,$2,$3,$4)", body.Name, body.Description, false, username)
+	result, err := dbops.AddTodoToDB(body.Name, body.Description, username)
 	if err != nil {
 		ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{
-			"error": "database insertion unsuccessful",
+			"error": err.Error(),
 		})
-		fmt.Println(err)
 		return
 	}
 	lastId, _ := result.LastInsertId()
-
-	defer db.Close()
 
 	ctx.Status(fiber.StatusAccepted).JSON(fiber.Map{
 		"accepted": lastId,

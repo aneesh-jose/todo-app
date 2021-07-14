@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"database/sql"
 	"fmt"
 
 	authentication "github.com/aneesh-jose/simple-server/utils/auth"
@@ -39,20 +38,8 @@ func UpdateTodo(ctx *fiber.Ctx) {
 		return
 	}
 
-	psqlInfo := dbops.GetDbCreds() // get the database credentials
-
-	db, err := sql.Open("postgres", psqlInfo) // open a database connection
-	if err != nil {
-		// the database authentication credentials might have changed
-		// or the database server might be down
-		ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "connection unsuccessful",
-		})
-		fmt.Println(err.Error())
-		return
-	}
 	// update the todo data i.e, the status (completed or not) according to the user input
-	result, err := db.Exec("update todos set status=$1 where id=$2 and username=$3", body.Status, body.Id, username)
+	result, err := dbops.UpdateTodoOperation(body.Id, body.Status)
 	if err != nil {
 		ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": "database updation unsuccessful",

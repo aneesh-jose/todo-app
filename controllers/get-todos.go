@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"database/sql"
-
 	"github.com/aneesh-jose/simple-server/models"
 	authentication "github.com/aneesh-jose/simple-server/utils/auth"
 	"github.com/aneesh-jose/simple-server/utils/dbops"
@@ -25,23 +23,11 @@ func ReadTodos(ctx *fiber.Ctx) {
 
 	var todoList []models.TodoJson
 
-	psqlInfo := dbops.GetDbCreds() // obtain the jwt
-
-	db, err := sql.Open("postgres", psqlInfo) // open the database
-	if err != nil {
-		// unsuccessful connection
-		// may be indicating an error in databse auth credentials or
-		// the database server may be down
-		ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "connection unsuccessful",
-		})
-		return
-	}
-	// pick the todos created by the `username` from the TODOS table
-	todos, err := db.Query("select * from todos where username=$1", username)
+	todos, err := dbops.ReadTodosFromDb(username)
 	if err != nil {
 		ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": "database query unsuccessful",
+			"stat":  err.Error(),
 		})
 		return
 	}
@@ -76,5 +62,4 @@ func ReadTodos(ctx *fiber.Ctx) {
 	}
 	// send the data with status as found
 	ctx.Status(fiber.StatusFound).JSON(outputTodoMap)
-	defer db.Close()
 }

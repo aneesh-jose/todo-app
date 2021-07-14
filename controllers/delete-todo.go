@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"database/sql"
 	"fmt"
 
 	authentication "github.com/aneesh-jose/simple-server/utils/auth"
@@ -37,23 +36,10 @@ func DeleteTodo(ctx *fiber.Ctx) {
 		return
 	}
 
-	psqlInfo := dbops.GetDbCreds() // generate database credentials
-
-	db, err := sql.Open("postgres", psqlInfo) //open postgresql connection
-
-	if err != nil {
-		// credentials are not authentic
-		// may be because the parameters are false or
-		// The database server may be down and need to restart
-		ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "connection unsuccessful",
-		})
-		return
-	}
 	// obtain the id of the todo from the request
 	// obtain username from the token(mentioned previously)
 	// execute the delete command
-	_, err = db.Exec("delete from todos where id=$1 and username=$2", body.Id, username)
+	_, err = dbops.DeleteTodoFromDb(body.Id, username)
 	if err != nil {
 		ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": "database deletion unsuccessful",
@@ -61,7 +47,6 @@ func DeleteTodo(ctx *fiber.Ctx) {
 		fmt.Println(err)
 		return
 	}
-	defer db.Close()
 	// send the 202(accepted) statuscode to the user
 	// so that they know the deletion opetation has successfully completed
 	ctx.Status(fiber.StatusAccepted)
