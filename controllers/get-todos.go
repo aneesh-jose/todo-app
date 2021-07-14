@@ -4,7 +4,8 @@ import (
 	"database/sql"
 
 	"github.com/aneesh-jose/simple-server/models"
-	"github.com/aneesh-jose/simple-server/packages/dbops"
+	authentication "github.com/aneesh-jose/simple-server/utils/auth"
+	"github.com/aneesh-jose/simple-server/utils/dbops"
 	"github.com/gofiber/fiber"
 	_ "github.com/lib/pq"
 )
@@ -12,8 +13,8 @@ import (
 func ReadTodos(ctx *fiber.Ctx) {
 	// function used to send user the todos generatd by them
 
-	token := ctx.Cookies("token")            //obtain the token from cookies
-	username, err := JWTAuthenticate(&token) //authenticate the token
+	token := ctx.Cookies("token")                           //obtain the token from cookies
+	username, err := authentication.JWTAuthenticate(&token) //authenticate the token
 	if username == "" || err != nil {
 		// if the parsing of the token is error
 		// the user is not valid and therefore send

@@ -4,7 +4,8 @@ import (
 	"database/sql"
 
 	"github.com/aneesh-jose/simple-server/models"
-	"github.com/aneesh-jose/simple-server/packages/dbops"
+	authentication "github.com/aneesh-jose/simple-server/utils/auth"
+	"github.com/aneesh-jose/simple-server/utils/dbops"
 	"github.com/gofiber/fiber"
 )
 
@@ -57,7 +58,7 @@ func Login(ctx *fiber.Ctx) {
 
 	defer db.Close()
 	// generate token according to the username and password
-	tokenString, err := JWTGenerator(body)
+	tokenString, err := authentication.JWTGenerator(body)
 	if err != nil {
 		ctx.Status(fiber.StatusInternalServerError)
 	}

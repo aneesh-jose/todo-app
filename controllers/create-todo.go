@@ -4,7 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/aneesh-jose/simple-server/packages/dbops"
+	authentication "github.com/aneesh-jose/simple-server/utils/auth"
+	"github.com/aneesh-jose/simple-server/utils/dbops"
 	"github.com/gofiber/fiber"
 	_ "github.com/lib/pq"
 )
@@ -12,7 +13,7 @@ import (
 func CreateTodo(ctx *fiber.Ctx) {
 
 	token := ctx.Cookies("token")
-	username, err := JWTAuthenticate(&token)
+	username, err := authentication.JWTAuthenticate(&token)
 	if username == "" || err != nil {
 		ctx.Status(fiber.StatusUnauthorized)
 		return

@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/aneesh-jose/simple-server/models"
-	"github.com/aneesh-jose/simple-server/packages/dbops"
+	"github.com/aneesh-jose/simple-server/utils/dbops"
 	"github.com/gofiber/fiber"
 )
 

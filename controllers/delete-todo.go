@@ -4,7 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/aneesh-jose/simple-server/packages/dbops"
+	authentication "github.com/aneesh-jose/simple-server/utils/auth"
+	"github.com/aneesh-jose/simple-server/utils/dbops"
 	"github.com/gofiber/fiber"
 	_ "github.com/lib/pq"
 )
@@ -13,7 +14,7 @@ func DeleteTodo(ctx *fiber.Ctx) {
 
 	token := ctx.Cookies("token")
 	//authenticate and generate username
-	username, err := JWTAuthenticate(&token)
+	username, err := authentication.JWTAuthenticate(&token)
 	if username == "" || err != nil {
 		// jwt parsing/ authentication is error
 		ctx.Status(fiber.StatusUnauthorized)

@@ -4,15 +4,16 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/aneesh-jose/simple-server/packages/dbops"
+	authentication "github.com/aneesh-jose/simple-server/utils/auth"
+	"github.com/aneesh-jose/simple-server/utils/dbops"
 	"github.com/gofiber/fiber"
 	_ "github.com/lib/pq"
 )
 
 func UpdateTodo(ctx *fiber.Ctx) {
 
-	token := ctx.Cookies("token")            // read token from cookies
-	username, err := JWTAuthenticate(&token) // authenticate the token
+	token := ctx.Cookies("token")                           // read token from cookies
+	username, err := authentication.JWTAuthenticate(&token) // authenticate the token
 	if username == "" || err != nil {
 		// error while parsing the jwt
 		ctx.Status(fiber.StatusUnauthorized)
